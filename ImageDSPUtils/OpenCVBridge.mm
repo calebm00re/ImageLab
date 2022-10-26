@@ -50,6 +50,7 @@ int blue_threshold = 15;
             green[i] = 0;
             blue[i] = 0;
         }
+        blue_threshold = 15;
     }
     else if (loop_index < 100){
         red[loop_index] = avgPixelIntensity.val[0];
@@ -60,7 +61,6 @@ int blue_threshold = 15;
     }
     else{
         cv::putText(_image, "arrays full", cv::Point(0, 50), FONT_HERSHEY_PLAIN, 0.75, Scalar::all(255), 1, 2);
-        blue_threshold = 15;
     }
     
     
