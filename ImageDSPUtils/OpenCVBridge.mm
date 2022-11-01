@@ -2,8 +2,8 @@
 //  OpenCVBridge.m
 //  LookinLive
 //
-//  Created by Eric Larson on 8/27/15.
-//  Copyright (c) 2015 Eric Larson. All rights reserved.
+//  Created by Eric Larson.
+//  Copyright (c) Eric Larson. All rights reserved.
 //
 
 #import "OpenCVBridge.hh"
@@ -22,13 +22,51 @@ using namespace cv;
 
 @implementation OpenCVBridge
 
-
+float red[100];
+float green[100];
+float blue[100];
+int loop_index = 0;
+int blue_threshold = 15;
 
 #pragma mark ===Write Your Code Here===
-// alternatively you can subclass this class and override the process image function
+// you can define your own functions here for processing the image
 
 
 #pragma mark Define Custom Functions Here
+-(Boolean)processFinger{
+    cv::Mat image_copy;
+    char text [501];
+    Scalar avgPixelIntensity;
+    cvtColor(_image, image_copy, CV_BGRA2BGR); // get rid of alpha for processing
+    avgPixelIntensity = cv::mean( image_copy );
+    sprintf(text, "Avg. R: %.0f, G: %.0f, B: %.0f", avgPixelIntensity.val[0],
+    avgPixelIntensity.val[1], avgPixelIntensity.val[2]);
+    cv::putText(_image, text, cv::Point(0, 30), FONT_HERSHEY_PLAIN, 0.75, Scalar::all(255), 1, 2);
+    Boolean finger_found = avgPixelIntensity.val[0] > 90 && avgPixelIntensity.val[1] < 15 && avgPixelIntensity.val[2] < blue_threshold;
+    if(!finger_found) {
+        loop_index = 0;
+        for(int i = 0; i < 100; i++){
+            red[i] = 0;
+            green[i] = 0;
+            blue[i] = 0;
+        }
+        blue_threshold = 15;
+    }
+    else if (loop_index < 100){
+        red[loop_index] = avgPixelIntensity.val[0];
+        green[loop_index] = avgPixelIntensity.val[1];
+        blue[loop_index] = avgPixelIntensity.val[2];
+        loop_index++;
+        blue_threshold = 50;
+    }
+    else{
+        cv::putText(_image, "arrays full", cv::Point(0, 50), FONT_HERSHEY_PLAIN, 0.75, Scalar::all(255), 1, 2);
+    }
+    
+    
+    return finger_found;
+}
+
 -(void)processImage{
     
     cv::Mat frame_gray,image_copy;
@@ -70,11 +108,13 @@ using namespace cv;
         }
         case 3:
         { // fine, adding scoping to case statements to get rid of jump errors
+            // FOR FLIPPED ASSIGNMENT, YOU MAY BE INTERESTED IN THIS EXAMPLE
             char text[50];
             Scalar avgPixelIntensity;
             
             cvtColor(_image, image_copy, CV_BGRA2BGR); // get rid of alpha for processing
             avgPixelIntensity = cv::mean( image_copy );
+            // they say that sprintf is depricated, but it still works for c++
             sprintf(text,"Avg. B: %.0f, G: %.0f, R: %.0f", avgPixelIntensity.val[0],avgPixelIntensity.val[1],avgPixelIntensity.val[2]);
             cv::putText(_image, text, cv::Point(0, 10), FONT_HERSHEY_PLAIN, 0.75, Scalar::all(255), 1, 2);
             break;
@@ -317,6 +357,7 @@ using namespace cv;
                                                     cvMat.step[0],             // Bytes per row
                                                     colorSpace,                // Colorspace
                                                     kCGImageAlphaNoneSkipLast |
+                                                    //kCGImageAlphaLast |
                                                     kCGBitmapByteOrderDefault); // Bitmap info flags
     // do the copy
     CGContextDrawImage(contextRef, CGRectMake(0, 0, cols, rows), faceImageCG);
@@ -351,7 +392,8 @@ using namespace cv;
                                         8 * _image.elemSize(),                           // Bits per pixel
                                         _image.step[0],                                  // Bytes per row
                                         colorSpace,                                     // Colorspace
-                                        kCGImageAlphaNone | kCGBitmapByteOrderDefault,  // Bitmap info flags
+                                        //kCGImageAlphaLast |
+                                        kCGBitmapByteOrderDefault,  // Bitmap info flags
                                         provider,                                       // CGDataProviderRef
                                         NULL,                                           // Decode
                                         false,                                          // Should interpolate
@@ -395,7 +437,8 @@ using namespace cv;
                                         8 * _image.elemSize(),                           // Bits per pixel
                                         _image.step[0],                                  // Bytes per row
                                         colorSpace,                                     // Colorspace
-                                        kCGImageAlphaNone | kCGBitmapByteOrderDefault,  // Bitmap info flags
+                                        //kCGImageAlphaLast |
+                                        kCGBitmapByteOrderDefault,  // Bitmap info flags
                                         provider,                                       // CGDataProviderRef
                                         NULL,                                           // Decode
                                         false,                                          // Should interpolate
