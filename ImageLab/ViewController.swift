@@ -23,12 +23,12 @@ class ViewController: UIViewController   {
         // create dictionary for face detection
         // HINT: you need to manipulate these properties for better face detection efficiency
         let optsDetector = [CIDetectorAccuracy:CIDetectorAccuracyHigh,
-                            CIDetectorTracking:true] as [String : Any]
+                            CIDetectorTracking:true]
         
         // setup a face detector in swift
         let detector = CIDetector(ofType: CIDetectorTypeFace,
                                   context: self.videoManager.getCIContext(), // perform on the GPU is possible
-            options: (optsDetector as [String : AnyObject]))
+            options: optsDetector)
         
         return detector
     }()
@@ -56,39 +56,68 @@ class ViewController: UIViewController   {
         
         // starting values for filter
         let filterPinch = CIFilter(name:"CIBumpDistortion")!
-        filterPinch.setValue(-0.5, forKey: "inputScale")
-        filterPinch.setValue(75, forKey: "inputRadius")
+        filterPinch.setValue(0.5, forKey: "inputScale")
+        filterPinch.setValue(25, forKey: "inputRadius")
         filters.append(filterPinch)
+        let filterSwirl = CIFilter(name:"CITwirlDistortion")!
+        filterSwirl.setValue(10, forKey: "inputRadius")
+        filters.append(filterSwirl)
         
     }
     
     //MARK: Apply filters and apply feature detectors
     func applyFiltersToFaces(inputImage:CIImage,features:[CIFaceFeature])->CIImage{
         var retImage = inputImage
-        var filterCenter = CGPoint() // for saving the center of face
-        var radius = 75
+        var filterCenterLeftEye = CGPoint()
+        var filterCenterRightEye = CGPoint()
+        var filterCenterSmile = CGPoint()
+        var eyeRadius = 25
+        var mouthRadius = 25
         
         for f in features { // for each face
             //set where to apply filter
-            filterCenter.x = f.bounds.midX
-            filterCenter.y = f.bounds.midY
-            radius = Int(f.bounds.width/2) // for setting the radius of the bump
+            let leftEyeClosed = f.leftEyeClosed
+            let rightEyeClosed = f.rightEyeClosed
+            let blinking = f.rightEyeClosed && f.leftEyeClosed
+            let isSmiling = f.hasSmile
+            print("isSmiling \(isSmiling)")
+            print("blinking \(blinking)")
+            print("rightEyeClosed \(rightEyeClosed)")
+            print("leftEyeClosed \(leftEyeClosed)\n\n")
             
+            filterCenterRightEye.x = f.rightEyePosition.x
+            filterCenterRightEye.y = f.rightEyePosition.y
+            filterCenterLeftEye.x = f.leftEyePosition.x
+            filterCenterLeftEye.y = f.leftEyePosition.y
+            filterCenterSmile.x = f.mouthPosition.x
+            filterCenterSmile.y = f.mouthPosition.y
+            eyeRadius = Int(f.bounds.width/2)
+            mouthRadius = Int(f.bounds.width/4)
+
             //do for each filter (assumes all filters have property, "inputCenter")
-            for filt in filters{
-                filt.setValue(retImage, forKey: kCIInputImageKey)
-                filt.setValue(CIVector(cgPoint: filterCenter), forKey: "inputCenter")
-                filt.setValue(radius, forKey: "inputRadius")
-                //  also manipulate the radius of the filter based on face size!
-                retImage = filt.outputImage!
-            }
+//            for filt in filters{
+            filters[0].setValue(retImage, forKey: kCIInputImageKey)
+            filters[0].setValue(CIVector(cgPoint: filterCenterLeftEye), forKey: "inputCenter")
+            filters[0].setValue(eyeRadius, forKey: "inputRadius")
+            retImage = filters[0].outputImage!
+            filters[0].setValue(retImage, forKey: kCIInputImageKey)
+            filters[0].setValue(CIVector(cgPoint: filterCenterRightEye), forKey: "inputCenter")
+            filters[0].setValue(eyeRadius, forKey: "inputRadius")
+            retImage = filters[0].outputImage!
+            filters[1].setValue(retImage, forKey: kCIInputImageKey)
+            filters[1].setValue(CIVector(cgPoint: filterCenterSmile), forKey: "inputCenter")
+            filters[1].setValue(mouthRadius, forKey: "inputRadius")
+            retImage = filters[1].outputImage!
+//            }
         }
         return retImage
     }
     
     func getFaces(img:CIImage) -> [CIFaceFeature]{
         // this ungodly mess makes sure the image is the correct orientation
-        let optsFace = [CIDetectorImageOrientation:self.videoManager.ciOrientation]
+        let optsFace = [CIDetectorImageOrientation:self.videoManager.ciOrientation,
+                                   CIDetectorSmile: true,
+                                CIDetectorEyeBlink: true] as [String : Any]
         // get Face Features
         return self.detector.features(in: img, options: optsFace) as! [CIFaceFeature]
         
