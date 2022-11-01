@@ -20,25 +20,27 @@
                             <tableViewSection id="sji-U3-d47">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="ModuleA" id="5jP-zV-khA">
-                                        <rect key="frame" x="0.0" y="50" width="375" height="43.5"/>
+                                        <rect key="frame" x="0.0" y="50" width="375" height="44.5"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="5jP-zV-khA" id="VKa-Nw-xTL">
-                                            <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="44.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                         </tableViewCellContentView>
+                                        <listContentConfiguration key="contentConfiguration" text="Module A"/>
                                         <connections>
-                                            <segue destination="BYZ-38-t0r" kind="show" id="9TC-gS-iOC"/>
+                                            <segue destination="nhR-Hp-rFE" kind="show" id="kb9-zq-Nrb"/>
                                         </connections>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="ModuleB" id="uCG-Y5-ksz">
-                                        <rect key="frame" x="0.0" y="93.5" width="375" height="43.5"/>
+                                        <rect key="frame" x="0.0" y="94.5" width="375" height="44.5"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="uCG-Y5-ksz" id="vad-3g-QGy">
-                                            <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="44.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                         </tableViewCellContentView>
+                                        <listContentConfiguration key="contentConfiguration" text="Module B" secondaryText=""/>
                                         <connections>
-                                            <segue destination="nhR-Hp-rFE" kind="show" id="BUb-vv-9bx"/>
+                                            <segue destination="BYZ-38-t0r" kind="show" id="tK9-33-mG2"/>
                                         </connections>
                                     </tableViewCell>
                                 </cells>
@@ -133,7 +135,7 @@
                     </connections>
                 </swipeGestureRecognizer>
             </objects>
-            <point key="canvasLocation" x="606" y="430"/>
+            <point key="canvasLocation" x="2230" y="61"/>
         </scene>
         <!--Face Filter View-->
         <scene sceneID="ydR-Jx-qR2">
@@ -152,7 +154,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="w9E-lS-Aoy" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1536" y="429"/>
+            <point key="canvasLocation" x="2230" y="-617"/>
         </scene>
     </scenes>
     <resources>
