@@ -54,7 +54,6 @@
 		B650B30E1D8340F0000114A1 = {
 			isa = PBXGroup;
 			children = (
-				3C66DA8F2911ABE400405020 /* FaceFilterView.swift */,
 				B67B72B61D996AB2008EDDE1 /* opencv2.framework */,
 				B650B34A1D83435A000114A1 /* ImageDSPUtils */,
 				B650B3191D8340F0000114A1 /* ImageLab */,
@@ -73,6 +72,7 @@
 		B650B3191D8340F0000114A1 /* ImageLab */ = {
 			isa = PBXGroup;
 			children = (
+				3C66DA8F2911ABE400405020 /* FaceFilterView.swift */,
 				B650B31A1D8340F0000114A1 /* AppDelegate.swift */,
 				B650B31C1D8340F0000114A1 /* ViewController.swift */,
 				B650B31E1D8340F0000114A1 /* Main.storyboard */,
