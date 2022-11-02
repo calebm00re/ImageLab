@@ -22,6 +22,7 @@ class VideoAnalgesic: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AV
     private var captureSession:AVCaptureSession? = nil
     private var preset:String? = AVCaptureSession.Preset.medium.rawValue
     private var captureOrient:AVCaptureVideoOrientation? = nil
+    private var showCamera = true
     
     // CI Properties
     private var ciContext:CIContext!
@@ -45,9 +46,10 @@ class VideoAnalgesic: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AV
     }
     
     // for setting the filters pipeline (r whatever processing you are doing)
-    func setProcessingBlock(newProcessBlock: @escaping ProcessBlock)
+    func setProcessingBlock(newProcessBlock: @escaping ProcessBlock, showCamera: Bool)
     {
         self.processBlock = newProcessBlock // to find out: does Swift do a deep copy??
+        self.showCamera = showCamera
     }
     
     
@@ -251,12 +253,12 @@ class VideoAnalgesic: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AV
 //            drawRect.size.height = drawRect.size.width / previewAspect;
 //        }
         
-        if (filteredImage != nil)
+        if (filteredImage != nil && showCamera)
         {
             DispatchQueue.main.async(){
                 guard let drawable = self.metalLayer?.nextDrawable() else { return }
                 let cSpace = CGColorSpaceCreateDeviceRGB()
-                
+
                 // render image to drawable display
                 if let commandBuffer = self.commandQueue.makeCommandBuffer(){
                     self.ciContext.render(filteredImage, to: drawable.texture,
@@ -266,7 +268,7 @@ class VideoAnalgesic: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AV
                     commandBuffer.present(drawable)
                     commandBuffer.commit()
                 }
-                
+
             }
         }
         

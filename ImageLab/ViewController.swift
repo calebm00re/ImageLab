@@ -23,7 +23,9 @@ class ViewController: UIViewController   {
     @IBOutlet weak var toggleCamera: UIButton!
     @IBOutlet weak var stageLabel: UILabel!
     
+    @IBOutlet weak var bpm: UILabel!
     @IBOutlet weak var toggleFlash: UIButton!
+    
     //MARK: ViewController Hierarchy
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -45,71 +47,46 @@ class ViewController: UIViewController   {
                                   context: self.videoManager.getCIContext(), // perform on the GPU is possible
             options: (optsDetector as [String : AnyObject]))
         
-        self.videoManager.setProcessingBlock(newProcessBlock: self.processImageSwift)
+        self.videoManager.setProcessingBlock(newProcessBlock: self.processImageSwift, showCamera: false)
         
         if !videoManager.isRunning{
             videoManager.start()
         }
+    }
     
+    override func viewDidDisappear(_ animated: Bool) {
+        self.videoManager.stop()
+        self.videoManager.turnOffFlash()
     }
     
     //MARK: Process image output
     func processImageSwift(inputImage:CIImage) -> CIImage{
+        self.videoManager.turnOnFlashwithLevel(1.0) // turn on flash
         
-        // detect faces
-//        let f = getFaces(img: inputImage)
-        
-        // if no faces, just return original image
-//        if f.count == 0 { return inputImage }
-        
-        var retImage = inputImage
-        
-        //-------------------Example 1----------------------------------
-        // if you just want to process on separate queue use this code
-        // this is a NON BLOCKING CALL, but any changes to the image in OpenCV cannot be displayed real time
-        /*
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0)) { () -> Void in
-            self.bridge.setImage(retImage, withBounds: retImage.extent, andContext: self.videoManager.getCIContext())
-            self.bridge.processImage()
-        }
-         */
-        
-        //-------------------Example 2----------------------------------
-        // use this code if you are using OpenCV and want to overwrite the displayed image via OpenCV
-        // this is a BLOCKING CALL
-        /*
-        // FOR FLIPPED ASSIGNMENT, YOU MAY BE INTERESTED IN THIS EXAMPLE
-        self.bridge.setTransforms(self.videoManager.transform)
-        self.bridge.setImage(retImage, withBounds: retImage.extent, andContext: self.videoManager.getCIContext())
-        self.bridge.processImage()
-        retImage = self.bridge.getImage()
-         */
-        
-        //-------------------Example 3----------------------------------
-        //You can also send in the bounds of the face to ONLY process the face in OpenCV
-        // or any bounds to only process a certain bounding region in OpenCV
+        var retImage = inputImage // do the image stuff
         self.bridge.setImage(retImage, withBounds: retImage.extent, andContext: self.videoManager.getCIContext())
         self.bridge.setTransforms(self.videoManager.transform)
-//        self.bridge.setImage(retImage,
-//                             withBounds: f[0].bounds, // the first face bounds
-//                             andContext: self.videoManager.getCIContext())
-        
-//        if(self.bridge.processFinger()){
-//            self.toggleCamera.isEnabled = false
-//            self
-//        }
-//        else{
-//            self.toggleCamera.isEnabled = true
-//        }
+
         let fingerFound = self.bridge.processFinger()
+        
         DispatchQueue.main.async {
             self.toggleFlash.isEnabled = !fingerFound
             self.toggleCamera.isEnabled = !fingerFound
             if fingerFound {
-                self.videoManager.turnOnFlashwithLevel(1.0)
+                if(self.bridge.getPeaks() < 20) { // if not enough data show calculating bpm
+                    self.bpm.font = self.bpm.font.withSize(16)
+                    self.bpm.textColor = .none
+                    self.bpm.text = "Calculating BPM..."
+                } else { // if enough data show bpm
+                    self.bpm.font = self.bpm.font.withSize(38)
+                    self.bpm.textColor = UIColor.systemRed
+                    self.bpm.text = String(Int(self.bridge.getHeartRate()))
+                }
             }
-            else{
-                self.videoManager.turnOffFlash()
+            else { // show instruction if finger not on camera
+                self.bpm.textColor = .none
+                self.bpm.font = self.bpm.font.withSize(16)
+                self.bpm.text = "Place your finger on the camera"
             }
         }
         

@@ -8,7 +8,6 @@
 
 #import "OpenCVBridge.hh"
 
-
 using namespace cv;
 
 @interface OpenCVBridge()
@@ -18,51 +17,174 @@ using namespace cv;
 @property (nonatomic) CGAffineTransform transform;
 @property (nonatomic) CGAffineTransform inverseTransform;
 @property (atomic) cv::CascadeClassifier classifier;
+@property (nonatomic, strong) NSMutableArray* hues;
 @end
 
 @implementation OpenCVBridge
 
-float red[100];
-float green[100];
-float blue[100];
+#define arraySize 500
+#define FPS 30
+
+float heartRate = 0.0;
+float red[arraySize];
+float green[arraySize];
+float blue[arraySize];
 int loop_index = 0;
 int blue_threshold = 15;
+bool done = false;
+CGFloat hue;
+int peaks;
+float percentage;
 
 #pragma mark ===Write Your Code Here===
 // you can define your own functions here for processing the image
 
+-(int) getPeaks {
+    return peaks;
+}
+
+-(float) getPercentage {
+    return percentage;
+}
+
+// Function from https://github.com/lehn0058/ATHeartRate
+-(NSArray *)butterworthBandpassFilter:(NSArray *)inputData {
+    const int NZEROS = 8;
+    const int NPOLES = 8;
+    static float xv[NZEROS+1], yv[NPOLES+1];
+    
+    // http://www-users.cs.york.ac.uk/~fisher/cgi-bin/mkfscript
+    // Butterworth Bandpass filter
+    // 4th order
+    // sample rate - varies between possible camera frequencies. Either 30, 60, 120, or 240 FPS
+    // corner1 freq. = 0.667 Hz (assuming a minimum heart rate of 40 bpm, 40 beats/60 seconds = 0.667 Hz)
+    // corner2 freq. = 4.167 Hz (assuming a maximum heart rate of 250 bpm, 250 beats/60 secods = 4.167 Hz)
+    // Bandpass filter was chosen because it removes frequency noise outside of our target range (both higher and lower)
+    double dGain = 1.232232910e+02;
+    
+    NSMutableArray *outputData = [[NSMutableArray alloc] init];
+    for (NSNumber *number in inputData)
+    {
+        double input = number.doubleValue;
+        
+        xv[0] = xv[1]; xv[1] = xv[2]; xv[2] = xv[3]; xv[3] = xv[4]; xv[4] = xv[5]; xv[5] = xv[6]; xv[6] = xv[7]; xv[7] = xv[8];
+        xv[8] = input / dGain;
+        yv[0] = yv[1]; yv[1] = yv[2]; yv[2] = yv[3]; yv[3] = yv[4]; yv[4] = yv[5]; yv[5] = yv[6]; yv[6] = yv[7]; yv[7] = yv[8];
+        yv[8] =   (xv[0] + xv[8]) - 4 * (xv[2] + xv[6]) + 6 * xv[4]
+        + ( -0.1397436053 * yv[0]) + (  1.2948188815 * yv[1])
+        + ( -5.4070037946 * yv[2]) + ( 13.2683981280 * yv[3])
+        + (-20.9442560520 * yv[4]) + ( 21.7932169160 * yv[5])
+        + (-14.5817197500 * yv[6]) + (  5.7161939252 * yv[7]);
+        
+        [outputData addObject:@(yv[8])];
+    }
+    
+    return outputData;
+}
+
+// Function from https://github.com/lehn0058/ATHeartRate
+-(NSArray *)medianSmoothing:(NSArray *)inputData {
+    NSMutableArray *newData = [[NSMutableArray alloc] init];
+    
+    for (int i = 0; i < inputData.count; i++)
+    {
+        if (i == 0 ||
+            i == 1 ||
+            i == 2 ||
+            i == inputData.count - 1 ||
+            i == inputData.count - 2 ||
+            i == inputData.count - 3)        {
+            [newData addObject:inputData[i]];
+        }
+        else
+        {
+            NSArray *items = [@[
+                                inputData[i-2],
+                                inputData[i-1],
+                                inputData[i],
+                                inputData[i+1],
+                                inputData[i+2],
+                                ] sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"self" ascending:YES]]];
+            
+            [newData addObject:items[2]];
+        }
+    }
+    
+    return newData;
+}
+
+// Function from https://github.com/lehn0058/ATHeartRate
+-(int)peakCount:(NSArray *)inputData {
+    if (inputData.count == 0)
+    {
+        return 0;
+    }
+
+    int count = 0;
+
+    for (int i = 3; i < inputData.count - 3;)
+    {
+        if ([inputData[i] doubleValue] > 0.0 &&
+            [inputData[i] doubleValue] > [inputData[i-1] doubleValue] &&
+            [inputData[i] doubleValue] > [inputData[i-2] doubleValue] &&
+            [inputData[i] doubleValue] > [inputData[i-3] doubleValue] &&
+            [inputData[i] doubleValue] >= [inputData[i+1] doubleValue] &&
+            [inputData[i] doubleValue] >= [inputData[i+2] doubleValue] &&
+            [inputData[i] doubleValue] >= [inputData[i+3] doubleValue]
+            )
+        {
+            count = count + 1;
+            i = i + 4;
+        }
+        else
+        {
+            i = i + 1;
+        }
+    }
+
+    return count;
+}
+
+-(NSMutableArray*)getHues {
+    return self.hues;
+}
+
+-(float)getHeartRate {
+    return heartRate;
+}
 
 #pragma mark Define Custom Functions Here
 -(Boolean)processFinger{
-    cv::Mat image_copy;
-    char text [501];
-    Scalar avgPixelIntensity;
-    cvtColor(_image, image_copy, CV_BGRA2BGR); // get rid of alpha for processing
-    avgPixelIntensity = cv::mean( image_copy );
-    sprintf(text, "Avg. R: %.0f, G: %.0f, B: %.0f", avgPixelIntensity.val[0],
-    avgPixelIntensity.val[1], avgPixelIntensity.val[2]);
-    cv::putText(_image, text, cv::Point(0, 30), FONT_HERSHEY_PLAIN, 0.75, Scalar::all(255), 1, 2);
-    Boolean finger_found = avgPixelIntensity.val[0] > 90 && avgPixelIntensity.val[1] < 15 && avgPixelIntensity.val[2] < blue_threshold;
-    if(!finger_found) {
-        loop_index = 0;
-        for(int i = 0; i < 100; i++){
-            red[i] = 0;
-            green[i] = 0;
-            blue[i] = 0;
+    Boolean finger_found = false;
+    if(!done) {
+        cv::Mat image_copy;
+        char text [501];
+        Scalar avgPixelIntensity;
+        cvtColor(_image, image_copy, CV_BGRA2BGR); // get rid of alpha for processing
+        avgPixelIntensity = cv::mean( image_copy );
+        sprintf(text, "Avg. R: %.0f, G: %.0f, B: %.0f", avgPixelIntensity.val[0],avgPixelIntensity.val[1], avgPixelIntensity.val[2]);
+        cv::putText(_image, text, cv::Point(0, 30), FONT_HERSHEY_PLAIN, 0.75, Scalar::all(255), 1, 2);
+        finger_found = avgPixelIntensity.val[0] > 90 && avgPixelIntensity.val[1] < 15 && avgPixelIntensity.val[2] < blue_threshold;
+        if(finger_found) { // if finger is on camera
+            // convert rgb to hsv and calculate hue
+            UIColor* color = [UIColor colorWithRed:avgPixelIntensity.val[0] green:avgPixelIntensity.val[1] blue:avgPixelIntensity.val[2] alpha:1.0];
+            CGFloat sat, bright;
+            [color getHue:&hue saturation:&sat brightness:&bright alpha:nil];
+            [self.hues addObject:@(hue)];
+            
+            // Update heart rate every second
+            if(self.hues.count % FPS == 0) {
+                NSArray* filtered = [self butterworthBandpassFilter:self.hues];
+                NSArray* smoothed = [self medianSmoothing:filtered];
+                
+                peaks = [self peakCount:smoothed]; // calculate the number of peaks
+                
+                float seconds = smoothed.count / FPS; // calculate number of seconds worth of data
+                percentage = seconds / 60; // calculate percentage minutes
+                heartRate = peaks / percentage; // calculate the heart rate
+            }
         }
-        blue_threshold = 15;
     }
-    else if (loop_index < 100){
-        red[loop_index] = avgPixelIntensity.val[0];
-        green[loop_index] = avgPixelIntensity.val[1];
-        blue[loop_index] = avgPixelIntensity.val[2];
-        loop_index++;
-        blue_threshold = 50;
-    }
-    else{
-        cv::putText(_image, "arrays full", cv::Point(0, 50), FONT_HERSHEY_PLAIN, 0.75, Scalar::all(255), 1, 2);
-    }
-    
     
     return finger_found;
 }
@@ -315,7 +437,7 @@ int blue_threshold = 15;
         self.inverseTransform = CGAffineTransformMakeScale(-1.0,1.0);
         self.inverseTransform = CGAffineTransformRotate(self.inverseTransform, -M_PI_2);
         
-        
+        self.hues = [[NSMutableArray alloc] init];
     }
     return self;
 }

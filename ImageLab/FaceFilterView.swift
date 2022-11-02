@@ -41,7 +41,7 @@ class FaceFilterView: UIViewController {
             self.setupFilters()
             
             self.videoManager.setCameraPosition(position: .front)
-            self.videoManager.setProcessingBlock(newProcessBlock: self.processImage)
+            self.videoManager.setProcessingBlock(newProcessBlock: self.processImage, showCamera: true)
             
             if !videoManager.isRunning{
                 videoManager.start()

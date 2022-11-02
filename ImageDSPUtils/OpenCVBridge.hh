@@ -6,11 +6,14 @@
 //  Copyright (c) Eric Larson. All rights reserved.
 //
 
+
 #import <Foundation/Foundation.h>
 #import <CoreImage/CoreImage.h>
 #import "AVFoundation/AVFoundation.h"
+#import <UIKit/UIKit.h>
 
 #import "PrefixHeader.pch"
+
 
 @interface OpenCVBridge : NSObject
 
@@ -31,10 +34,18 @@
 // call this to perfrom processing (user controlled for better transparency)
 -(void)processImage;
 -(Boolean)processFinger;
+//-(NSMutableArray*)getPeaks;
 
 // for the video manager transformations
 -(void)setTransforms:(CGAffineTransform)trans;
 
 -(void)loadHaarCascadeWithFilename:(NSString*)filename;
+
+-(NSArray *)butterworthBandpassFilter:(NSArray *)inputData;
+-(NSArray *)medianSmoothing:(NSArray *)inputData;
+-(int)peakCount:(NSArray *)inputData;
+-(float)getHeartRate;
+-(int) getPeaks;
+-(float) getPercentage;
 
 @end
