@@ -95,18 +95,23 @@ class FaceFilterView: UIViewController {
 
                 //do for each filter (assumes all filters have property, "inputCenter")
     //            for filt in filters{
-                filters[0].setValue(retImage, forKey: kCIInputImageKey)
-                filters[0].setValue(CIVector(cgPoint: filterCenterLeftEye), forKey: "inputCenter")
-                filters[0].setValue(eyeRadius, forKey: "inputRadius")
-                retImage = filters[0].outputImage!
-                filters[0].setValue(retImage, forKey: kCIInputImageKey)
-                filters[0].setValue(CIVector(cgPoint: filterCenterRightEye), forKey: "inputCenter")
-                filters[0].setValue(eyeRadius, forKey: "inputRadius")
-                retImage = filters[0].outputImage!
-                filters[1].setValue(retImage, forKey: kCIInputImageKey)
-                filters[1].setValue(CIVector(cgPoint: filterCenterSmile), forKey: "inputCenter")
-                filters[1].setValue(mouthRadius, forKey: "inputRadius")
-                retImage = filters[1].outputImage!
+                if(!isSmiling){
+                    filters[0].setValue(retImage, forKey: kCIInputImageKey)
+                    filters[0].setValue(CIVector(cgPoint: filterCenterLeftEye), forKey: "inputCenter")
+                    filters[0].setValue(eyeRadius, forKey: "inputRadius")
+                    retImage = filters[0].outputImage!
+                    filters[0].setValue(retImage, forKey: kCIInputImageKey)
+                    filters[0].setValue(CIVector(cgPoint: filterCenterRightEye), forKey: "inputCenter")
+                    filters[0].setValue(eyeRadius, forKey: "inputRadius")
+                    retImage = filters[0].outputImage!
+                }
+                
+                if(leftEyeClosed || rightEyeClosed){
+                    filters[1].setValue(retImage, forKey: kCIInputImageKey)
+                    filters[1].setValue(CIVector(cgPoint: filterCenterSmile), forKey: "inputCenter")
+                    filters[1].setValue(mouthRadius, forKey: "inputRadius")
+                    retImage = filters[1].outputImage!
+                }
     //            }
             }
             return retImage
