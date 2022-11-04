@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		3C66DA902911ABE400405020 /* FaceFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C66DA8F2911ABE400405020 /* FaceFilterView.swift */; };
+		55030BA9291454D800F707B6 /* Charts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55030BA5291454BF00F707B6 /* Charts.framework */; };
+		55030BAA291454D800F707B6 /* Charts.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 55030BA5291454BF00F707B6 /* Charts.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		55D126E62914A31400CD429D /* MetalGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55D126E32914A31400CD429D /* MetalGraph.swift */; };
+		55D126E82914A6FD00CD429D /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55D126E72914A6FC00CD429D /* Shaders.metal */; };
 		B650B31B1D8340F0000114A1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B650B31A1D8340F0000114A1 /* AppDelegate.swift */; };
 		B650B31D1D8340F0000114A1 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B650B31C1D8340F0000114A1 /* ViewController.swift */; };
 		B650B3201D8340F0000114A1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B650B31E1D8340F0000114A1 /* Main.storyboard */; };
@@ -20,8 +24,42 @@
 		B6E657991D95AA4500E75C60 /* VideoAnalgesic.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E657981D95AA4500E75C60 /* VideoAnalgesic.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		55030BA4291454BF00F707B6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 55030B9F291454BF00F707B6 /* Charts.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 65AD9E95D9ED4DC0BD73A743;
+			remoteInfo = Charts;
+		};
+		55030BA6291454BF00F707B6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 55030B9F291454BF00F707B6 /* Charts.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 1CBBC58C6CE1EBEE9852CE41;
+			remoteInfo = ChartsTests;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		55030BAB291454D800F707B6 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				55030BAA291454D800F707B6 /* Charts.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		3C66DA8F2911ABE400405020 /* FaceFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceFilterView.swift; sourceTree = "<group>"; };
+		55030B9F291454BF00F707B6 /* Charts.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Charts.xcodeproj; path = ../../Charts/Charts.xcodeproj; sourceTree = "<group>"; };
+		55D126E32914A31400CD429D /* MetalGraph.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MetalGraph.swift; path = "../../MASL-Lab2/AudioLabSwift/MetalGraph.swift"; sourceTree = "<group>"; };
+		55D126E72914A6FC00CD429D /* Shaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; name = Shaders.metal; path = "../MASL-Lab2/Shaders.metal"; sourceTree = "<group>"; };
 		B650B3171D8340F0000114A1 /* ImageLab.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ImageLab.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B650B31A1D8340F0000114A1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B650B31C1D8340F0000114A1 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -45,15 +83,26 @@
 			buildActionMask = 2147483647;
 			files = (
 				B67B72B71D996AB2008EDDE1 /* opencv2.framework in Frameworks */,
+				55030BA9291454D800F707B6 /* Charts.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		55030BA0291454BF00F707B6 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				55030BA5291454BF00F707B6 /* Charts.framework */,
+				55030BA7291454BF00F707B6 /* ChartsTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		B650B30E1D8340F0000114A1 = {
 			isa = PBXGroup;
 			children = (
+				55D126E72914A6FC00CD429D /* Shaders.metal */,
 				B67B72B61D996AB2008EDDE1 /* opencv2.framework */,
 				B650B34A1D83435A000114A1 /* ImageDSPUtils */,
 				B650B3191D8340F0000114A1 /* ImageLab */,
@@ -72,6 +121,7 @@
 		B650B3191D8340F0000114A1 /* ImageLab */ = {
 			isa = PBXGroup;
 			children = (
+				55D126E32914A31400CD429D /* MetalGraph.swift */,
 				3C66DA8F2911ABE400405020 /* FaceFilterView.swift */,
 				B650B31A1D8340F0000114A1 /* AppDelegate.swift */,
 				B650B31C1D8340F0000114A1 /* ViewController.swift */,
@@ -82,6 +132,7 @@
 				B650B34D1D834D46000114A1 /* smu-campus.jpg */,
 				B67B72BE1D99D0AD008EDDE1 /* nose.xml */,
 				B6EF2FD91F7A906A00C33387 /* PrefixHeader.pch */,
+				55030B9F291454BF00F707B6 /* Charts.xcodeproj */,
 			);
 			path = ImageLab;
 			sourceTree = "<group>";
@@ -108,6 +159,7 @@
 				B650B3131D8340F0000114A1 /* Sources */,
 				B650B3141D8340F0000114A1 /* Frameworks */,
 				B650B3151D8340F0000114A1 /* Resources */,
+				55030BAB291454D800F707B6 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -147,12 +199,35 @@
 			mainGroup = B650B30E1D8340F0000114A1;
 			productRefGroup = B650B3181D8340F0000114A1 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 55030BA0291454BF00F707B6 /* Products */;
+					ProjectRef = 55030B9F291454BF00F707B6 /* Charts.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				B650B3161D8340F0000114A1 /* ImageLab */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		55030BA5291454BF00F707B6 /* Charts.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = Charts.framework;
+			remoteRef = 55030BA4291454BF00F707B6 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		55030BA7291454BF00F707B6 /* ChartsTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = ChartsTests.xctest;
+			remoteRef = 55030BA6291454BF00F707B6 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		B650B3151D8340F0000114A1 /* Resources */ = {
@@ -175,7 +250,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				B6E657991D95AA4500E75C60 /* VideoAnalgesic.swift in Sources */,
+				55D126E82914A6FD00CD429D /* Shaders.metal in Sources */,
 				B650B31D1D8340F0000114A1 /* ViewController.swift in Sources */,
+				55D126E62914A31400CD429D /* MetalGraph.swift in Sources */,
 				3C66DA902911ABE400405020 /* FaceFilterView.swift in Sources */,
 				B650B31B1D8340F0000114A1 /* AppDelegate.swift in Sources */,
 				B67B72BB1D996ADE008EDDE1 /* OpenCVBridge.mm in Sources */,

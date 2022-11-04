@@ -8,8 +8,10 @@
 
 import UIKit
 import AVFoundation
+import Charts
+import Metal
 
-class ViewController: UIViewController   {
+class ViewController: UIViewController  {
 
     //MARK: Class Properties
     var filters : [CIFilter]! = nil
@@ -17,20 +19,23 @@ class ViewController: UIViewController   {
     let pinchFilterIndex = 2
     var detector:CIDetector! = nil
     let bridge = OpenCVBridge()
+    let baseArray : [Float] = Array(repeating: 0.0, count: 50)
+    lazy var graph:MetalGraph? = {
+        return MetalGraph(mainView: self.view)
+    }()
     
     //MARK: Outlets in view
-    @IBOutlet weak var flashSlider: UISlider!
-    @IBOutlet weak var toggleCamera: UIButton!
-    @IBOutlet weak var stageLabel: UILabel!
-    
     @IBOutlet weak var bpm: UILabel!
-    @IBOutlet weak var toggleFlash: UIButton!
     
     //MARK: ViewController Hierarchy
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        graph?.addGraph(withName: "ppg",
+                        shouldNormalize: true,
+                        numPointsInGraph: 512)
         
-        self.view.backgroundColor = nil
+//        self.view.backgroundColor = nil
         
         // setup the OpenCV bridge nose detector, from file
         self.bridge.loadHaarCascade(withFilename: "nose")
@@ -52,6 +57,25 @@ class ViewController: UIViewController   {
         if !videoManager.isRunning{
             videoManager.start()
         }
+        
+        Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.updateGraph), userInfo: nil, repeats: true)
+    }
+    
+    @objc func updateGraph() {
+        if let hues = self.bridge.getHues() {
+            if(hues.count >= 512) {
+                var temp : [Float] = []
+                for i in ((hues.count - 512)..<hues.count) {
+                    var tempNum = hues[i] as! NSNumber
+                    //                            print(tempNum.floatValue)
+                    //                            var tempNum1 = ((tempNum.floatValue * 100) - Float(Int(tempNum.floatValue * 100)))
+                    temp.append(tempNum.floatValue)
+                }
+                self.graph?.updateGraph(data: temp, forKey: "ppg")
+            } //else {
+//                self.graph?.updateGraph(data: self.baseArray, forKey: "ppg")
+//            }
+        }
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -70,12 +94,26 @@ class ViewController: UIViewController   {
         let fingerFound = self.bridge.processFinger()
         
         DispatchQueue.main.async {
-            self.toggleFlash.isEnabled = !fingerFound
-            self.toggleCamera.isEnabled = !fingerFound
             if fingerFound {
+//                if let hues = self.bridge.getHues() {
+//                    if(hues.count >= 500) {
+//                        var temp : [Float] = []
+//                        for i in hues.count - 500..<hues.count {
+//                            var tempNum = hues[i] as! NSNumber
+////                            print(tempNum.floatValue)
+////                            var tempNum1 = ((tempNum.floatValue * 100) - Float(Int(tempNum.floatValue * 100)))
+//                            temp.append(tempNum.floatValue)
+//                        }
+//                        print(temp)
+//                        self.graph?.updateGraph(data: temp, forKey: "ppg")
+//                    } else {
+//                        self.graph?.updateGraph(data: self.baseArray, forKey: "ppg")
+//                    }
+//                }
+                
                 if(self.bridge.getPeaks() < 20) { // if not enough data show calculating bpm
                     self.bpm.font = self.bpm.font.withSize(16)
-                    self.bpm.textColor = .none
+                    self.bpm.textColor = .white
                     self.bpm.text = "Calculating BPM..."
                 } else { // if enough data show bpm
                     self.bpm.font = self.bpm.font.withSize(38)
@@ -84,7 +122,7 @@ class ViewController: UIViewController   {
                 }
             }
             else { // show instruction if finger not on camera
-                self.bpm.textColor = .none
+                self.bpm.textColor = .white
                 self.bpm.font = self.bpm.font.withSize(16)
                 self.bpm.text = "Place your finger on the camera"
             }
@@ -104,50 +142,5 @@ class ViewController: UIViewController   {
         return self.detector.features(in: img, options: optsFace) as! [CIFaceFeature]
         
     }
-    
-    
-    // change the type of processing done in OpenCV
-    @IBAction func swipeRecognized(_ sender: UISwipeGestureRecognizer) {
-        switch sender.direction {
-        case .left:
-            self.bridge.processType += 1
-        case .right:
-            self.bridge.processType -= 1
-        default:
-            break
-            
-        }
-        
-        stageLabel.text = "Stage: \(self.bridge.processType)"
-
-    }
-    
-    //MARK: Convenience Methods for UI Flash and Camera Toggle
-    @IBAction func flash(_ sender: AnyObject) {
-        if(self.videoManager.toggleFlash()){
-            self.flashSlider.value = 1.0
-        }
-        else{
-            self.flashSlider.value = 0.0
-        }
-    }
-    
-    @IBAction func switchCamera(_ sender: AnyObject) {
-        self.videoManager.toggleCameraPosition()
-    }
-    
-    @IBAction func setFlashLevel(_ sender: UISlider) {
-        if(sender.value>0.0){
-            let val = self.videoManager.turnOnFlashwithLevel(sender.value)
-            if val {
-                print("Flash return, no errors.")
-            }
-        }
-        else if(sender.value==0.0){
-            self.videoManager.turnOffFlash()
-        }
-    }
-
-   
 }
 

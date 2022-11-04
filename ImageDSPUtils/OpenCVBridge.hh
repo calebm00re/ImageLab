@@ -47,5 +47,6 @@
 -(float)getHeartRate;
 -(int) getPeaks;
 -(float) getPercentage;
+-(NSMutableArray*) getHues;
 
 @end

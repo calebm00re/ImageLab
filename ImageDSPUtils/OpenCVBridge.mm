@@ -47,6 +47,10 @@ float percentage;
     return percentage;
 }
 
+-(NSMutableArray*) getHues {
+    return self.hues;
+}
+
 // Function from https://github.com/lehn0058/ATHeartRate
 -(NSArray *)butterworthBandpassFilter:(NSArray *)inputData {
     const int NZEROS = 8;
@@ -143,10 +147,6 @@ float percentage;
     }
 
     return count;
-}
-
--(NSMutableArray*)getHues {
-    return self.hues;
 }
 
 -(float)getHeartRate {
