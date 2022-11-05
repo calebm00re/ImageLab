@@ -10,6 +10,7 @@ import UIKit
 import AVFoundation
 import Charts
 import Metal
+import Accelerate
 
 class ViewController: UIViewController  {
 
@@ -32,8 +33,8 @@ class ViewController: UIViewController  {
         super.viewDidLoad()
 
         graph?.addGraph(withName: "ppg",
-                        shouldNormalize: true,
-                        numPointsInGraph: 512)
+                        shouldNormalize: false,
+                        numPointsInGraph: 50)
         
 //        self.view.backgroundColor = nil
         
@@ -63,15 +64,24 @@ class ViewController: UIViewController  {
     
     @objc func updateGraph() {
         if let hues = self.bridge.getHues() {
-            if(hues.count >= 512) {
-                var temp : [Float] = []
-                for i in ((hues.count - 512)..<hues.count) {
+            if(hues.count >= 50) {
+                var temp : [Double] = []
+                for i in ((hues.count - 50)..<hues.count) {
                     var tempNum = hues[i] as! NSNumber
                     //                            print(tempNum.floatValue)
                     //                            var tempNum1 = ((tempNum.floatValue * 100) - Float(Int(tempNum.floatValue * 100)))
-                    temp.append(tempNum.floatValue)
+                    temp.append(tempNum.doubleValue)
                 }
-                self.graph?.updateGraph(data: temp, forKey: "ppg")
+                var mn: Double = 0.0 // mean value
+                vDSP_meanvD(temp, 1, &mn, vDSP_Length(temp.count))
+
+                var ms: Double = 0.0 // mean square value
+                vDSP_measqvD(temp, 1, &ms, vDSP_Length(temp.count))
+
+                let sddev = sqrt(ms - mn * mn) * sqrt(Double(temp.count)/Double(temp.count - 1))
+                
+                let results = temp.map { Float(($0 - mn) / sddev) / 10.0 }
+                self.graph?.updateGraph(data: results, forKey: "ppg")
             } //else {
 //                self.graph?.updateGraph(data: self.baseArray, forKey: "ppg")
 //            }
@@ -113,7 +123,7 @@ class ViewController: UIViewController  {
                 
                 if(self.bridge.getPeaks() < 20) { // if not enough data show calculating bpm
                     self.bpm.font = self.bpm.font.withSize(16)
-                    self.bpm.textColor = .white
+                    self.bpm.textColor = .none
                     self.bpm.text = "Calculating BPM..."
                 } else { // if enough data show bpm
                     self.bpm.font = self.bpm.font.withSize(38)
@@ -122,7 +132,7 @@ class ViewController: UIViewController  {
                 }
             }
             else { // show instruction if finger not on camera
-                self.bpm.textColor = .white
+                self.bpm.textColor = .none
                 self.bpm.font = self.bpm.font.withSize(16)
                 self.bpm.text = "Place your finger on the camera"
             }
