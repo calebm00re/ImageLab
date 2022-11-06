@@ -64,27 +64,23 @@ class ViewController: UIViewController  {
     
     @objc func updateGraph() {
         if let hues = self.bridge.getHues() {
-            if(hues.count >= 50) {
+            if(hues.count >= 50) { // wait until there is atleast 50 data points to plot
                 var temp : [Double] = []
-                for i in ((hues.count - 50)..<hues.count) {
-                    var tempNum = hues[i] as! NSNumber
-                    //                            print(tempNum.floatValue)
-                    //                            var tempNum1 = ((tempNum.floatValue * 100) - Float(Int(tempNum.floatValue * 100)))
+                for i in ((hues.count - 50)..<hues.count) { // get last 50 data points
+                    let tempNum = hues[i] as! NSNumber
                     temp.append(tempNum.doubleValue)
                 }
-                var mn: Double = 0.0 // mean value
+                var mn: Double = 0.0 // mean value of last 50 points
                 vDSP_meanvD(temp, 1, &mn, vDSP_Length(temp.count))
 
-                var ms: Double = 0.0 // mean square value
+                var ms: Double = 0.0 // mean square value of last 50 points
                 vDSP_measqvD(temp, 1, &ms, vDSP_Length(temp.count))
 
-                let sddev = sqrt(ms - mn * mn) * sqrt(Double(temp.count)/Double(temp.count - 1))
+                let sddev = sqrt(ms - mn * mn) * sqrt(Double(temp.count)/Double(temp.count - 1)) // standard deviation of last 50 points
                 
-                let results = temp.map { Float(($0 - mn) / sddev) / 10.0 }
-                self.graph?.updateGraph(data: results, forKey: "ppg")
-            } //else {
-//                self.graph?.updateGraph(data: self.baseArray, forKey: "ppg")
-//            }
+                let results = temp.map { Float(($0 - mn) / sddev) / 10.0 } // normalize the data
+                self.graph?.updateGraph(data: results, forKey: "ppg") // update thr graph
+            }
         }
     }
     
@@ -105,22 +101,6 @@ class ViewController: UIViewController  {
         
         DispatchQueue.main.async {
             if fingerFound {
-//                if let hues = self.bridge.getHues() {
-//                    if(hues.count >= 500) {
-//                        var temp : [Float] = []
-//                        for i in hues.count - 500..<hues.count {
-//                            var tempNum = hues[i] as! NSNumber
-////                            print(tempNum.floatValue)
-////                            var tempNum1 = ((tempNum.floatValue * 100) - Float(Int(tempNum.floatValue * 100)))
-//                            temp.append(tempNum.floatValue)
-//                        }
-//                        print(temp)
-//                        self.graph?.updateGraph(data: temp, forKey: "ppg")
-//                    } else {
-//                        self.graph?.updateGraph(data: self.baseArray, forKey: "ppg")
-//                    }
-//                }
-                
                 if(self.bridge.getPeaks() < 20) { // if not enough data show calculating bpm
                     self.bpm.font = self.bpm.font.withSize(16)
                     self.bpm.textColor = .none
