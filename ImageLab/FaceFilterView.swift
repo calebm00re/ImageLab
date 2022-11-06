@@ -43,6 +43,7 @@ class FaceFilterView: UIViewController {
             self.videoManager.setCameraPosition(position: .front)
             self.videoManager.setProcessingBlock(newProcessBlock: self.processImage, showCamera: true)
             
+            // Start videoManager
             if !videoManager.isRunning{
                 videoManager.start()
             }
@@ -51,9 +52,10 @@ class FaceFilterView: UIViewController {
         
         //MARK: Setup filtering
         func setupFilters(){
+            // FILTER ARRAY!!
             filters = []
             
-            // starting values for filter
+            // starting values for filters (and adding/appending them)
             let filterPinch = CIFilter(name:"CIBumpDistortion")!
             filterPinch.setValue(0.5, forKey: "inputScale")
             filterPinch.setValue(25, forKey: "inputRadius")
@@ -66,10 +68,13 @@ class FaceFilterView: UIViewController {
         
         //MARK: Apply filters and apply feature detectors
         func applyFiltersToFaces(inputImage:CIImage,features:[CIFaceFeature])->CIImage{
+            // Initial variable setups
             var retImage = inputImage
             var filterCenterLeftEye = CGPoint()
             var filterCenterRightEye = CGPoint()
             var filterCenterSmile = CGPoint()
+            
+            //Eye and mouth radii
             var eyeRadius = 25
             var mouthRadius = 25
             
@@ -79,11 +84,8 @@ class FaceFilterView: UIViewController {
                 let rightEyeClosed = f.rightEyeClosed
                 let blinking = f.rightEyeClosed && f.leftEyeClosed
                 let isSmiling = f.hasSmile
-//                print("isSmiling \(isSmiling)")
-//                print("blinking \(blinking)")
-//                print("rightEyeClosed \(rightEyeClosed)")
-//                print("leftEyeClosed \(leftEyeClosed)\n\n")
                 
+                //Filters depending on the features above
                 filterCenterRightEye.x = f.rightEyePosition.x
                 filterCenterRightEye.y = f.rightEyePosition.y
                 filterCenterLeftEye.x = f.leftEyePosition.x
@@ -93,8 +95,7 @@ class FaceFilterView: UIViewController {
                 eyeRadius = Int(f.bounds.width/2)
                 mouthRadius = Int(f.bounds.width/4)
 
-                //do for each filter (assumes all filters have property, "inputCenter")
-    //            for filt in filters{
+                // Toggles eye filter if the user is smiling or not
                 if(!isSmiling){
                     filters[0].setValue(retImage, forKey: kCIInputImageKey)
                     filters[0].setValue(CIVector(cgPoint: filterCenterLeftEye), forKey: "inputCenter")
@@ -106,17 +107,18 @@ class FaceFilterView: UIViewController {
                     retImage = filters[0].outputImage!
                 }
                 
+                // Toggles mouth filter if the user is smiling or not
                 if(!blinking){
                     filters[1].setValue(retImage, forKey: kCIInputImageKey)
                     filters[1].setValue(CIVector(cgPoint: filterCenterSmile), forKey: "inputCenter")
                     filters[1].setValue(mouthRadius, forKey: "inputRadius")
                     retImage = filters[1].outputImage!
                 }
-    //            }
             }
             return retImage
         }
         
+    // Gets and IDs the face
         func getFaces(img:CIImage) -> [CIFaceFeature]{
             // this ungodly mess makes sure the image is the correct orientation
             let optsFace = [CIDetectorImageOrientation:self.videoManager.ciOrientation,
