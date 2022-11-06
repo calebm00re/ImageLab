@@ -8,8 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		3C66DA902911ABE400405020 /* FaceFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C66DA8F2911ABE400405020 /* FaceFilterView.swift */; };
-		55030BA9291454D800F707B6 /* Charts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55030BA5291454BF00F707B6 /* Charts.framework */; };
-		55030BAA291454D800F707B6 /* Charts.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 55030BA5291454BF00F707B6 /* Charts.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		55D126E62914A31400CD429D /* MetalGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55D126E32914A31400CD429D /* MetalGraph.swift */; };
 		55D126E82914A6FD00CD429D /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55D126E72914A6FC00CD429D /* Shaders.metal */; };
 		B650B31B1D8340F0000114A1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B650B31A1D8340F0000114A1 /* AppDelegate.swift */; };
@@ -41,20 +39,6 @@
 		};
 /* End PBXContainerItemProxy section */
 
-/* Begin PBXCopyFilesBuildPhase section */
-		55030BAB291454D800F707B6 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				55030BAA291454D800F707B6 /* Charts.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
-
 /* Begin PBXFileReference section */
 		3C66DA8F2911ABE400405020 /* FaceFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceFilterView.swift; sourceTree = "<group>"; };
 		55030B9F291454BF00F707B6 /* Charts.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Charts.xcodeproj; path = ../../Charts/Charts.xcodeproj; sourceTree = "<group>"; };
@@ -83,7 +67,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				B67B72B71D996AB2008EDDE1 /* opencv2.framework in Frameworks */,
-				55030BA9291454D800F707B6 /* Charts.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -159,7 +142,6 @@
 				B650B3131D8340F0000114A1 /* Sources */,
 				B650B3141D8340F0000114A1 /* Frameworks */,
 				B650B3151D8340F0000114A1 /* Resources */,
-				55030BAB291454D800F707B6 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);

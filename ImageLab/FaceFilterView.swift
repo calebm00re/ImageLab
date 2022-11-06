@@ -79,10 +79,10 @@ class FaceFilterView: UIViewController {
                 let rightEyeClosed = f.rightEyeClosed
                 let blinking = f.rightEyeClosed && f.leftEyeClosed
                 let isSmiling = f.hasSmile
-                print("isSmiling \(isSmiling)")
-                print("blinking \(blinking)")
-                print("rightEyeClosed \(rightEyeClosed)")
-                print("leftEyeClosed \(leftEyeClosed)\n\n")
+//                print("isSmiling \(isSmiling)")
+//                print("blinking \(blinking)")
+//                print("rightEyeClosed \(rightEyeClosed)")
+//                print("leftEyeClosed \(leftEyeClosed)\n\n")
                 
                 filterCenterRightEye.x = f.rightEyePosition.x
                 filterCenterRightEye.y = f.rightEyePosition.y
@@ -106,7 +106,7 @@ class FaceFilterView: UIViewController {
                     retImage = filters[0].outputImage!
                 }
                 
-                if(leftEyeClosed || rightEyeClosed){
+                if(!blinking){
                     filters[1].setValue(retImage, forKey: kCIInputImageKey)
                     filters[1].setValue(CIVector(cgPoint: filterCenterSmile), forKey: "inputCenter")
                     filters[1].setValue(mouthRadius, forKey: "inputRadius")
